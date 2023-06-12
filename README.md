@@ -2,6 +2,13 @@
 
 A minimal utility for benchmarking pgvector 
 
+
+## Installing
+
+```
+pip install git+https://github.com/olirice/vector_bench.git
+```
+
 ## Benchmark CLI
 
 ```
