@@ -6,8 +6,8 @@ A minimal utility for benchmarking pgvector
 
 ```
 $ vector_bench benchmark --help 
-                                                                                                                         
- Usage: vector_bench benchmark [OPTIONS] CONNECTION_STRING DIMENSIONS N_RECORDS                                          
+
+ Usage: vector_bench benchmark [OPTIONS] CONNECTION_STRING DIMENSIONS N_RECORDS
 
 ╭─ Arguments ───────────────────────────────────────────────────────────────────────╮
 │ *    connection_string      TEXT     [default: None] [required]                   │
@@ -58,9 +58,9 @@ statement latencies in milliseconds and failures:
 ## Help
 
 ```
-$ vector_bench --help 
+$ vector_bench --help
 
- Usage: vector_bench [OPTIONS] COMMAND [ARGS]...                                                                         
+ Usage: vector_bench [OPTIONS] COMMAND [ARGS]...
 
 ╭─ Options ────────────────────────────────────────────────────────────────╮
 │ --install-completion          Install completion for the current shell.  │
