@@ -1,6 +1,6 @@
 # Vector Bench
 
-A minimal utility for benchmarking pgvector 
+A minimal utility for benchmarking pgvector
 
 
 ## Installing
@@ -12,7 +12,7 @@ pip install git+https://github.com/olirice/vector_bench.git
 ## Benchmark CLI
 
 ```
-$ vector_bench benchmark --help 
+$ vector_bench benchmark --help
 
  Usage: vector_bench benchmark [OPTIONS] CONNECTION_STRING DIMENSIONS N_RECORDS
 
@@ -57,7 +57,7 @@ latency average = 114.126 ms
 initial connection time = 2419.960 ms
 tps = 1314.338679 (without initial connection time)   <------- Transactions per second
 statement latencies in milliseconds and failures:
-       113.551           0  select id from vector_bench.xxx order by vec <#> '[0.05532938334987327, 
+       113.551           0  select id from vector_bench.xxx order by vec <#> '[0.05532938334987327,
 0.0036667510917421427, 0.042280200655183495, 0.02285502
 ```
 
