@@ -8,16 +8,16 @@ A minimal utility for benchmarking pgvector
 $ vector_bench benchmark --help 
                                                                                                                          
  Usage: vector_bench benchmark [OPTIONS] CONNECTION_STRING DIMENSIONS N_RECORDS                                          
-                                                                                                                         
-╭─ Arguments ───────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ *    connection_string      TEXT     [default: None] [required]                                                       │
-│ *    dimensions             INTEGER  [default: None] [required]                                                       │
-│ *    n_records              INTEGER  [default: None] [required]                                                       │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --index-n-lists        INTEGER  [default: None]                                                                       │
-│ --help                          Show this message and exit.                                                           │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+╭─ Arguments ───────────────────────────────────────────────────────────────────────╮
+│ *    connection_string      TEXT     [default: None] [required]                   │
+│ *    dimensions             INTEGER  [default: None] [required]                   │
+│ *    n_records              INTEGER  [default: None] [required]                   │
+╰───────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ─────────────────────────────────────────────────────────────────────────╮
+│ --index-n-lists        INTEGER  [default: None]                                   │
+│ --help                          Show this message and exit.                       │
+╰───────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Example Usage
@@ -59,17 +59,17 @@ statement latencies in milliseconds and failures:
 
 ```
 $ vector_bench --help 
-                                                                                                                        
+
  Usage: vector_bench [OPTIONS] COMMAND [ARGS]...                                                                         
-                                                                                                                         
-╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --install-completion          Install completion for the current shell.                                               │
-│ --show-completion             Show completion for the current shell, to copy it or customize the installation.        │
-│ --help                        Show this message and exit.                                                             │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ benchmark                                                                                                             │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+╭─ Options ────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.  │
+│ --show-completion             Show completion for the current shell,  ...│
+│ --help                        Show this message and exit.                │
+╰──────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────╮
+│ benchmark                                                                │
+╰──────────────────────────────────────────────────────────────────────────╯
 ```
 
 
