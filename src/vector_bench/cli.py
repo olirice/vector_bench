@@ -20,25 +20,43 @@ def benchmark(
     n_records: int,
     index_n_lists: Optional[int] = None,
     limit: int = 10,
+    probes: int = 10,
+):
+
+    return benchmark_inner(
+        connection_string, dimensions, n_records, index_n_lists, limit, probes
+    )
+
+
+def benchmark_inner(
+    connection_string: str,
+    dimensions: int,
+    n_records: int,
+    index_n_lists: Optional[int] = None,
+    limit: int = 10,
+    probes: int = 10,
 ):
 
     engine = create_engine(connection_string)
     Session = sessionmaker(engine)
 
     with Session() as sess:
-
-        print("Initial setup")
+        print("Initial setup", flush=True)
+        sess.execute(text("set statement_timeout = '5min'"))
         sess.execute(DROP_SCHEMA_STATEMENT)
         sess.execute(CREATE_SCHEMA_STATEMENT)
         sess.execute(CREATE_ARRAY_FUNCTION)
-        print("Creating and populating table")
+        print("Creating and populating table", flush=True)
         sess.execute(create_populated_table_statement(dimensions, n_records))
-        print("Creating index")
+        print("Creating index", flush=True)
         sess.execute(create_index_statement(n_records, index_n_lists))
-        print("Creating benchmarking function")
-        sess.execute(create_benchmarking_function(dimensions, limit))
-        print("Finalizing config")
-        sess.execute(text("set ivfflat.nprobes = 10;"))
+        print("Creating benchmarking function", flush=True)
+        sess.execute(create_benchmarking_function(dimensions, limit, probes))
+        print("Forcing index into memory", flush=True)
+        sess.execute(
+            text("select vector_bench.bench_func() from generate_series(1, 50)")
+        )
+        print("Finalizing config", flush=True)
 
         sess.commit()
 
@@ -80,7 +98,9 @@ def benchmark(
         capture_output=True,
     )
 
-    print(output.stdout.decode())
+    txt = output.stdout.decode()
+    print(txt)
+    return txt
 
 
 @app.command()
@@ -143,7 +163,7 @@ def create_populated_table_statement(dimensions: int, n_records: int):
 
 def create_index_statement(n_records: int, n_lists: Optional[int] = None):
     index_n_lists = n_lists or (
-        int(max(n_records / 1000, 30))
+        int(max(n_records / 1000, 10))
         if n_records < 1_000_000
         else int(math.sqrt(n_records))
     )
@@ -157,12 +177,14 @@ def create_index_statement(n_records: int, n_lists: Optional[int] = None):
     )
 
 
-def create_benchmarking_function(dimensions: int, limit: int):
+def create_benchmarking_function(dimensions: int, limit: int, probes: int):
     return text(
         f"""
     create or replace function vector_bench.bench_func()
     returns setof int
-        language sql
+    set ivfflat.probes = {probes}
+    set enable_seqscan = off
+    language sql
         as $$
             select id from vector_bench.xxx order by vec <#> (select generate_normalized_array({dimensions})::vector({dimensions}))  limit {limit}
         $$;

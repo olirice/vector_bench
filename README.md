@@ -28,6 +28,7 @@ $ vector_bench benchmark --help
 ╭─ Options ─────────────────────────────────────────────────────────────────────────╮
 │ --index-n-lists        INTEGER  [default: None]                                   │
 │ --limit                INTEGER  [default: 10]                                     │
+│ --probes               INTEGER  [default: 10]                                     │
 │ --help                          Show this message and exit.                       │
 ╰───────────────────────────────────────────────────────────────────────────────────╯
 ```
