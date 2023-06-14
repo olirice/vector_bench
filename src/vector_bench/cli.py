@@ -15,7 +15,7 @@ app = typer.Typer()
 
 @app.command()
 def benchmark(
-    connection_string: str, dimensions: int, n_records: int, index_n_lists: int = None
+    connection_string: str, dimensions: int, n_records: int, index_n_lists: Optional[int] = None, limit: int = 10
 ):
 
     engine = create_engine(connection_string)
@@ -31,6 +31,8 @@ def benchmark(
         sess.execute(create_populated_table_statement(dimensions, n_records))
         print("Creating index")
         sess.execute(create_index_statement(n_records, index_n_lists))
+        print("Creating benchmarking function")
+        sess.execute(create_benchmarking_function(dimensions, limit))
         print("Finalizing config")
         sess.execute(text("set ivfflat.nprobes = 10;"))
 
@@ -50,9 +52,7 @@ def benchmark(
         query_vec = norm_vec(dimensions)
         query_vec = ", ".join([str(x) for x in query_vec])
 
-        f.write(
-            f"select id from vector_bench.xxx order by vec <#> '[{query_vec}]' limit 10"
-        )
+        f.write("select vector_bench.bench_func()")
 
     output = subprocess.run(
         [
@@ -78,10 +78,9 @@ def benchmark(
 
     print(output.stdout.decode())
 
-
 @app.command()
-def versi():
-    print(f"vector_bench 0.0,1")
+def version():
+    print("vector_bench v0.0.1")
 
 
 if __name__ == "__main__":
@@ -149,6 +148,19 @@ def create_index_statement(n_records: int, n_lists: Optional[int] = None):
 	create index ix_ip_100_xxx
 		on vector_bench.xxx
 		using ivfflat (vec vector_ip_ops) with (lists={index_n_lists})
+	"""
+    )
+
+
+def create_benchmarking_function(dimensions: int, limit: int):
+    return text(
+        f"""
+    create or replace function vector_bench.bench_func()
+    returns setof int
+        language sql
+        as $$
+            select id from vector_bench.xxx order by vec <#> (select generate_normalized_array({dimensions})::vector({dimensions}))  limit {limit}
+        $$;
 	"""
     )
 

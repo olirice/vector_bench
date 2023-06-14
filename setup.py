@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="vector_bench",
-    version="",
+    version="0.0.1",
     description="Method chaining built on generators",
     url="https://github.com/olirice/vector_bench",
     author="Oliver Rice",
