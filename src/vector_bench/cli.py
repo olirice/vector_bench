@@ -15,7 +15,11 @@ app = typer.Typer()
 
 @app.command()
 def benchmark(
-    connection_string: str, dimensions: int, n_records: int, index_n_lists: Optional[int] = None, limit: int = 10
+    connection_string: str,
+    dimensions: int,
+    n_records: int,
+    index_n_lists: Optional[int] = None,
+    limit: int = 10,
 ):
 
     engine = create_engine(connection_string)
@@ -77,6 +81,7 @@ def benchmark(
     )
 
     print(output.stdout.decode())
+
 
 @app.command()
 def version():

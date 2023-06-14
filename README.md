@@ -5,6 +5,10 @@ A minimal utility for benchmarking pgvector
 
 ## Installing
 
+Requirements:
+- python 3.8+
+- pgbench
+
 ```
 pip install git+https://github.com/olirice/vector_bench.git
 ```
@@ -23,6 +27,7 @@ $ vector_bench benchmark --help
 ╰───────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ─────────────────────────────────────────────────────────────────────────╮
 │ --index-n-lists        INTEGER  [default: None]                                   │
+│ --limit                INTEGER  [default: 10]                                     │
 │ --help                          Show this message and exit.                       │
 ╰───────────────────────────────────────────────────────────────────────────────────╯
 ```
