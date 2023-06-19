@@ -43,6 +43,7 @@ def benchmark_inner(
     with Session() as sess:
         print("Initial setup", flush=True)
         sess.execute(text("set statement_timeout = '5min'"))
+        sess.execute(CREATE_EXTENSION_STATEMENT)
         sess.execute(DROP_SCHEMA_STATEMENT)
         sess.execute(CREATE_SCHEMA_STATEMENT)
         sess.execute(CREATE_ARRAY_FUNCTION)
@@ -112,6 +113,7 @@ if __name__ == "__main__":
     app()
 
 
+CREATE_EXTENSION_STATEMENT = text("create extension if not exists vector;")
 DROP_SCHEMA_STATEMENT = text("drop schema if exists vector_bench cascade;")
 CREATE_SCHEMA_STATEMENT = text("create schema if not exists vector_bench;")
 
@@ -119,32 +121,23 @@ CREATE_ARRAY_FUNCTION = text(
     """
 create or replace function vector_bench.generate_normalized_array(dimension int)
 	returns double precision[]
+    language sql
 as $$
-	declare
-	  unit_vector double precision[] := array[]::double precision[];
-	  normalization_factor double precision;
-	  i int;
-	begin
-	  if dimension <= 0 then
-		raise 'Dimension should be greater than 0';
-	  end if;
+    with unnormed(elem) as(
+        select random() from generate_series(1, $1) v(x)
+    ),
+    norm(factor) as (
+        select
+            sqrt(sum(pow(elem, 2)))
+        from
+            unnormed
+    )
+    select
+        array_agg(u.elem / r.factor)
+    from
+        unnormed u, norm r
 
-	  -- Create the initial array with values 1/dimension
-	  for i in 1..dimension loop
-		unit_vector := array_append(unit_vector, random()::double precision);
-	  end loop;
-
-	  -- Calculate normalization factor
-	  normalization_factor := sqrt(dimension);
-
-	  -- Normalize the vector
-	  for i in array_lower(unit_vector, 1)..array_upper(unit_vector, 1) loop
-		unit_vector[i] := unit_vector[i]/normalization_factor;
-	  end loop;
-
-	  return unit_vector;
-	end;
-$$ language plpgsql;
+$$;
 """
 )
 
@@ -155,7 +148,7 @@ def create_populated_table_statement(dimensions: int, n_records: int):
 	drop table if exists vector_bench.xxx;
 
 	create table vector_bench.xxx as
-		select v.id, generate_normalized_array({dimensions})::vector({dimensions}) as vec
+		select v.id, vector_bench.generate_normalized_array({dimensions})::vector({dimensions}) as vec
 		from generate_series(1, {n_records}) v(id);
 	"""
     )
@@ -180,13 +173,22 @@ def create_index_statement(n_records: int, n_lists: Optional[int] = None):
 def create_benchmarking_function(dimensions: int, limit: int, probes: int):
     return text(
         f"""
-    create or replace function vector_bench.bench_func()
+    create or replace function vector_bench.bench_func(query_vec double precision[] default null, probes int default {probes})
     returns setof int
-    set ivfflat.probes = {probes}
-    set enable_seqscan = off
-    language sql
+    language plpgsql
         as $$
-            select id from vector_bench.xxx order by vec <#> (select generate_normalized_array({dimensions})::vector({dimensions}))  limit {limit}
+        begin
+            set enable_seqscan = off;
+            execute format('set ivfflat.probes = %s', probes);
+            return query
+                select id
+                from vector_bench.xxx
+                order by vec <#> case
+                    when query_vec is null then (select vector_bench.generate_normalized_array({dimensions})::vector({dimensions}))
+                    else query_vec::vector({dimensions})
+                end
+                limit {limit};
+        end;
         $$;
 	"""
     )

@@ -31,6 +31,7 @@ venv/*
 .env
 *.pid
 *.swp
+*.swo
 
 # Generated documentation
 /docs/gen/
